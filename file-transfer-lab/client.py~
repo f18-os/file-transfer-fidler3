@@ -1,0 +1,188 @@
+#! /usr/bin/env python3
+
+# Echo client program
+import socket, sys, re
+
+sys.path.append("../lib")       # for params
+import params
+
+from framedSock import framedSend, framedReceive
+
+
+switchesVarDefaults = (
+    (('-s', '--server'), 'server', "127.0.0.1:50001"),
+    (('-d', '--debug'), "debug", False), # boolean (set if present)
+    (('-?', '--usage'), "usage", False), # boolean (set if present)
+    )
+
+
+progname = "framedClient"
+paramMap = params.parseParams(switchesVarDefaults)
+
+server, usage, debug  = paramMap["server"], paramMap["usage"], paramMap["debug"]
+
+if usage:
+    params.usage()
+
+
+try:
+    serverHost, serverPort = re.split(":", server)
+    serverPort = int(serverPort)
+except:
+    print("Can't parse server:port from '%s'" % server)
+    sys.exit(1)
+
+s = None
+for res in socket.getaddrinfo(serverHost, serverPort, socket.AF_UNSPEC, socket.SOCK_STREAM):
+    af, socktype, proto, canonname, sa = res
+    try:
+        print("creating sock: af=%d, type=%d, proto=%d" % (af, socktype, proto))
+        s = socket.socket(af, socktype, proto)
+    except socket.error as msg:
+        print(" error: %s" % msg)
+        s = None
+        continue
+    try:
+        print(" attempting to connect to %s" % repr(sa))
+        s.connect(sa)
+    except socket.error as msg:
+        print(" error: %s" % msg)
+        s.close()
+        s = None
+        continue
+    break
+
+if s is None:
+    print('could not open socket')
+    sys.exit(1)
+
+    
+acknowledment = False
+while 1:
+    c = raw_input("GET filename or PUT filename\n")
+    command = c.encode('utf-8') #initial call
+    s.send(command)
+    cl = c.split(" ")
+    if cl[0] == "GET": #starting get method
+        while not acknowledgment: #keep sending till ack
+            try:
+                data, addr = s.recvfrom(1024) #recieving that server is ready
+                print"Command acknowledged"
+                acknowledgment = True
+            except:
+                s.sendto(command, address)
+                print "Resending command"
+            
+        text = data.decode('utf-8')
+        acknowledgment = False
+        while not acknowledgment:
+            try:
+                data2, address2 = s.recvfrom(1024) #recieving number of packets
+                acknowledgment = True
+            except:
+                s.sendto("g", address)
+            
+        text2 = data2.decode('utf-8')
+
+        writer = open("from-server" + cl[1], 'wb') #writer to create new file
+        d = 0
+    
+        tillC = data2.decode('utf-8') 
+        print tillC
+        tillCC = int(tillC)
+        tillCC = tillCC  
+        acknowledged = False
+        while tillCC != 0: #countdown till complete
+            try:
+                ClientBdata, clientbAddr = s.recvfrom(1024) #recieve datagram
+                ClientBdata = ClientBdata.split(" ", 1) #split [0] is datagram number [1] is data
+                print ClientBdata
+                if len(ClientBdata) == 1:
+                    continue
+                filedata = ClientBdata[1]
+                num = int(ClientBdata[0])
+                print(str(num) +" "+ str(d+1)) 
+                if num == (d+1): #only write if data received, is one then the last ack sent
+                    dataS = writer.write(filedata)
+                    d += 1
+                    print("Received packet number: " + str(d))
+                    print("Sending Ack " + str(d))
+                    s.sendto(str(d), clientbAddr)
+                    tillCC = tillCC -1
+            except timeout:
+                s.sendto(str(d), address)
+    
+        writer.close()
+        print("done")
+        sys.exit()
+
+    if cl[0] == "PUT":
+        while not acknowledgment:
+            try:
+                ready, address = s.recvfrom(1024) #waiting for server to digest command
+                if ready == "ready":
+                    print "Server Ready"
+                    acknowledgment = True             
+            except timeout:
+                s.sendto(command, address)
+        c = 1
+        sizeS =  os.stat(cl[1])    
+        sizeSS = sizeS.st_size
+        Nums = int(sizeSS/100)+1 #calculate number of packets add 1 because more then likely a remainder
+        print str(Nums) + " packets"
+        Nums = Nums 
+        tillSS = "go " + str(Nums)
+        print tillSS
+        tillSSS = tillSS.encode('utf-8')
+        acknow = False
+        s.sendto(tillSSS, address)
+        while not acknow:
+            try:
+                send, address = s.recvfrom(1024)
+                if send == "send":
+                    acknow = True
+            except timeout:
+                s.sendto(tillSSS, address)
+            
+
+        check = int(Nums)
+        GetRunS = open(cl[1], "rb")
+        while check != 0:
+            tryfails = -1
+            acknowledged = False
+            RunS = GetRunS.read(100)
+            print RunS
+            datanum = str(c)
+            datanum = datanum.encode('utf-8')
+            datapack = [datanum, RunS]
+            datapack = " ".join(datapack)
+            try:
+                s.sendto(datapack, address)
+                print("Packet number:" +str(c))
+                ack, address = s.recvfrom(1024)
+                print(str(ack) + " " + str(c))
+                if RunS == '': #empty means a error occured
+                    print"Type ./p1.sh in terminal and try again"
+                    break
+                elif ack == str(c):
+                    c += 1
+                    check -= 1
+            except timeout:
+                s.sendto(datapack, address)
+                if RunS == '':
+                    print"Error type ./p1.sh in bash and try again"
+                    sys.exit()
+                print ("resending data " + str(c))
+                
+        print("done")
+        GetRunS.close()
+        sys.exit()
+
+#print("sending hello world")
+#framedSend(s, b"hello world", debug)
+#print("received:", framedReceive(s, debug))
+
+#print("sending hello world")
+#framedSend(s, b"hello world", debug)
+#print("received:", framedReceive(s, debug))
+
