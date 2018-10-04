@@ -50,6 +50,7 @@ while b:
      #   count = size.encode('utf-8')
      #   sock.send(count)
         getruns = open(payload, "rb")
+        sock.send(b'LETSGO') #Lets drive this file to the end zone.. football references
         while True:
            run = getruns.read(100)
            print("sending ", run.decode('utf-8'))
@@ -58,5 +59,6 @@ while b:
            if not run:
                  print("Done")
                  break
+        sock.send(b'TDBABY') #Touchdown you're done
         getruns.close()
         b = False

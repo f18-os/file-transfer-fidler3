@@ -68,10 +68,15 @@ txtfile = f
 with open("copy " + txtfile, 'wb') as r:
     while True:
         input = s.recv(100)
-        if not input:
+        if input == b'LETSGO':
+            continue #lets begin reading file
+        elif input == b'TDBABY':
+            print("Done writing")
             break
-        r.write(input)
+        else:
+            r.write(input)
     r.close()
+    print("All done")
 s.close()
 #print("received:", framedReceive(s, debug))
 
