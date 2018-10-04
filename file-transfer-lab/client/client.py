@@ -56,25 +56,23 @@ if s is None:
     print('could not open socket')
     sys.exit(1)
 
+
     
-while 1:
-    c = input("filename\n")
-    command = c.encode('utf-8')
-    s.send(command)
-    cl = c.split(" ")
-    data = s.recv(1024) #recieve the number of 100 byte messages needed
-    count = data.decode('utf-8')
-    writer = open("from-server" + cl[1], 'wb') #says "from server" to keep track when done
-    while count  >= 0:
-        filedata = s.recv(100)
-        d = writer.write(filedata)
-        count = count - 1        
-    writer.close()
-    print(done)
-    sys.exit()
-        
 #print("sending hello world")
-#framedSend(s, b"hello world", debug)
+
+f = input("Enter filename to get from server\n")
+txtfile = f.encode('utf-8')
+framedSend(s, txtfile, debug)
+txtfile = f
+
+with open("copy " + txtfile, 'wb') as r:
+    while True:
+        input = s.recv(100)
+        if not input:
+            break
+        r.write(input)
+    r.close()
+s.close()
 #print("received:", framedReceive(s, debug))
 
 #print("sending hello world")

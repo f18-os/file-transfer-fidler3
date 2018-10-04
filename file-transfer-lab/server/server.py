@@ -33,29 +33,30 @@ print("connection rec'd from", addr)
 
 from framedSock import framedSend, framedReceive
 
-#while True:
-#    payload = framedReceive(sock, debug)
-#    if debug: print("rec'd: ", payload)
-#    if not payload:
-#        break
-#    payload += b"!"             # make emphatic!
-#    framedSend(sock, payload, debug)
-
-while True:
-    message = sock.recv(1024)
-    if os.path.isfile(message[1]):
-        size = os.stat(message[1])
-        size = size.st_size
-        count = int(size/100)+1 #number of messages plus one for expected remainder bytes
-        print (str(count) + "messages") # for debugging
-        count = size.encode('utf-8')
-        sock.send(count)
-        getruns = open(message[1], "rb")
-        while count >= 0:
+b =True
+while b:
+    payload = framedReceive(sock, debug)
+    if debug: print("rec'd: ", payload)
+    if not payload:
+        break
+       # make emphatic
+    payload = payload.decode('utf-8')
+    print("sending " + payload)
+    if os.path.isfile(payload):
+     #   size = os.stat(payload)
+     #   size = size.st_size
+     #   count = int(size/100)+1 #number of messages plus one for expected remainder bytes
+     #   print (str(count) + "messages") # for debugging
+     #   count = size.encode('utf-8')
+     #   sock.send(count)
+        getruns = open(payload, "rb")
+        while True:
            run = getruns.read(100)
+           print("sending ", run.decode('utf-8'))
            sock.send(run)
-           count = count - 1
-    print("Done")
-
-        
-    
+           print("sent " + run.decode('utf-8'))
+           if not run:
+                 print("Done")
+                 break
+        getruns.close()
+        b = False
