@@ -73,6 +73,9 @@ with open("copy " + txtfile, 'wb') as r:
         elif input == b'TDBABY':
             print("Done writing")
             break
+        elif input == b'WRONG': #wrong and tdbaby serve the similar purposes, but are different
+            print("File does not exist exiting")
+            break
         else:
             r.write(input)
     r.close()

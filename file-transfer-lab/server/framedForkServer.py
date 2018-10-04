@@ -55,5 +55,6 @@ while True:
                 getruns.close()
                 sys.exit(0)
             else:
-                print("File does not exist exiting program")
+                print("File does not exist informing client and  exiting program")
+                sock.send(b'WRONG')
                 sys.exit(0)
