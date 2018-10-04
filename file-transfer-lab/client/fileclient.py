@@ -59,8 +59,14 @@ if s is None:
 
     
 #print("sending hello world")
+check = True
 
-f = input("Enter filename to get from server\n")
+while check:
+    f = input("Enter filename to get from server\n")
+    if os.path.isfile(f):
+        print("This file already exists in directory")
+    else:
+        check = False
 txtfile = f.encode('utf-8')
 framedSend(s, txtfile, debug)
 txtfile = f
