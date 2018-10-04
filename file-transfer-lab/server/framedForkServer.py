@@ -42,13 +42,12 @@ while True:
             payload = payload.decode('utf-8')
             print("sending " + payload)
             if os.path.isfile(payload):
-                getruns = open(payload, "rb")
+                getruns = open(payload, "rb") #open file for reading bytes
                 sock.send(b'LETSGO') #Lets drive this file to the end zone.. football references
                 while True:
                     run = getruns.read(100)
-                    print("sending ", run.decode('utf-8'))
                     sock.send(run)
-                    print("sent " + run.decode('utf-8'))
+                    print("sent ") #sent 100 bytes
                     if not run:
                         print("Done")
                         break
