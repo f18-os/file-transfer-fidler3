@@ -2,7 +2,7 @@
 
 ### Intoduction
 
-This file transfer protocol is client and server based. The client will request a file from the server and the server will send the file 100 bytes at a time. The program uses TCP in order to conduct it's file transfer.
+This file transfer protocol is client and server based. The client will request a file from the server and the server will send the file 100 bytes at a time. The program uses TCP in order to conduct it's file transfer. I attempted to implement both "put" and "get". Put works to a point can't get it to know when to stop and close. Get hasn't really been troubleshooted since I made changes to it.
 
 ### Running
 In order to run the program you must have framedSock.py file and the lib directory availabe to the client and server programs.
@@ -15,3 +15,7 @@ If you enter a file that is not in ther server directory you will be informed an
 
 
 I realize I did the "GET" method and I just realized that you wanted "PUT".... which is essentially the same thing just in the other direction. I hope I still show the appropiate skills necessary. I'll be adding "PUT" by the end of the week for fun regardless.
+
+put <filename>
+
+get <filename>
